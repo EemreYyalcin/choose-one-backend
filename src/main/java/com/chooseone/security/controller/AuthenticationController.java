@@ -11,6 +11,8 @@ import com.chooseone.security.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -21,7 +23,7 @@ import javax.validation.Valid;
 
 @RestController
 @RequiredArgsConstructor
-public class AuthenticationREST {
+public class AuthenticationController {
 
     private final JWTUtil jwtUtil;
 
@@ -45,4 +47,9 @@ public class AuthenticationREST {
                 .defaultIfEmpty(ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(BaseResponse.createResponse(null, "User is already defined", 999)));
     }
 
+    @RequestMapping(value = "/isLogin", method = RequestMethod.POST)
+    @PreAuthorize("hasRole('USER')")
+    public Mono<ResponseEntity<BaseResponse<Boolean>>> isLogIn(){
+        return Mono.just(ResponseEntity.ok(BaseResponse.createSuccessResponse(true)));
+    }
 }
