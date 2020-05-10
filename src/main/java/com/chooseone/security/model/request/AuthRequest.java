@@ -5,11 +5,15 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.validation.constraints.NotEmpty;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
 public class  AuthRequest {
+	@NotEmpty(message = "username is not empty")
 	private String username;
+	@NotEmpty(message = "password is not empty")
 	private String password;
 }

@@ -1,6 +1,8 @@
 package com.chooseone.security.manager;
 
+import com.chooseone.security.enums.Role;
 import com.chooseone.security.jwt.JWTUtil;
+import com.chooseone.security.model.auth.TokenPrinciple;
 import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -32,10 +34,17 @@ public class AuthenticationManager implements ReactiveAuthenticationManager {
 			Claims claims = jwtUtil.getAllClaimsFromToken(authToken);
 			List<String> rolesMap = claims.get("role", List.class);
 			List<GrantedAuthority> authorities = new ArrayList<>();
+			TokenPrinciple tokenPrinciple = new TokenPrinciple().setUsername(claims.getSubject());
+			if (rolesMap.contains(Role.ROLE_ADMIN.name())){
+				for (Role role: Role.values()) {
+					authorities.add(new SimpleGrantedAuthority(role.name()));
+				}
+				return Mono.just(new UsernamePasswordAuthenticationToken(claims.getSubject(), tokenPrinciple, authorities));
+			}
 			for (String rolemap : rolesMap) {
 				authorities.add(new SimpleGrantedAuthority(rolemap));
 			}
-			return Mono.just(new UsernamePasswordAuthenticationToken(claims.getSubject(), null, authorities));
+			return Mono.just(new UsernamePasswordAuthenticationToken(claims.getSubject(), tokenPrinciple, authorities));
 		} catch (Exception e) {
 			return Mono.empty();
 		}

@@ -1,10 +1,12 @@
 package com.chooseone.security.jwt;
 
 import com.chooseone.data.redis.model.UserInfo;
+import com.chooseone.security.model.auth.TokenPrinciple;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -73,5 +75,10 @@ public class JWTUtil {
 	public Boolean validateToken(String token) {
 		return !isTokenExpired(token);
 	}
+
+	public static TokenPrinciple getPrinciple(Authentication authentication){
+		return (TokenPrinciple) authentication.getCredentials();
+	}
+
 
 }

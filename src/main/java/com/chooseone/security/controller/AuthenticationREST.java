@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
+
 @RestController
 @RequiredArgsConstructor
 public class AuthenticationREST {
@@ -28,7 +30,7 @@ public class AuthenticationREST {
     private final UserService userService;
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
-    public Mono<ResponseEntity<BaseResponse<AuthResponse>>> login(@RequestBody AuthRequest ar) {
+    public Mono<ResponseEntity<BaseResponse<AuthResponse>>> login(@RequestBody @Valid AuthRequest ar) {
         return userService.findByUsername(ar.getUsername())
                 .filter(userInfo -> passwordEncoder.encode(ar.getPassword()).equals(userInfo.getPassword()))
                 .map(userInfo -> ResponseEntity.ok(BaseResponse.createSuccessResponse(new AuthResponse(jwtUtil.generateToken(userInfo), userInfo.getUsername()))))
