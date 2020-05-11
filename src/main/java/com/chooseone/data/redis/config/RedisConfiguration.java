@@ -1,6 +1,7 @@
 package com.chooseone.data.redis.config;
 
 
+import com.chooseone.data.redis.model.Imdb;
 import com.chooseone.data.redis.model.SortedSetId;
 import com.chooseone.data.redis.model.UserInfo;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -37,7 +38,7 @@ public class RedisConfiguration {
     }
 
     @Bean
-    public ReactiveRedisTemplate<String, UserInfo> redisTournamentMapOperations(ReactiveRedisConnectionFactory connectionFactory) {
+    public ReactiveRedisTemplate<String, UserInfo> redisUserInfoOperations(ReactiveRedisConnectionFactory connectionFactory) {
         RedisSerializationContext<String, UserInfo> serializationContext
                 = RedisSerializationContext
                 .<String, UserInfo>newSerializationContext(new StringRedisSerializer())
@@ -46,6 +47,18 @@ public class RedisConfiguration {
                 .build();
         return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
     }
+
+    @Bean
+    public ReactiveRedisTemplate<String, Imdb> redisImdbOperations(ReactiveRedisConnectionFactory connectionFactory) {
+        RedisSerializationContext<String, Imdb> serializationContext
+                = RedisSerializationContext
+                .<String, Imdb>newSerializationContext(new StringRedisSerializer())
+                .hashKey(new StringRedisSerializer())
+                .hashValue(configureJackson2JsonRedisSerializer(Imdb.class))
+                .build();
+        return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
+    }
+
 
 
 }

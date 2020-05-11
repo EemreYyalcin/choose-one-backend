@@ -3,7 +3,6 @@ package com.chooseone.data.redis.repository;
 import com.chooseone.data.redis.model.UserInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ReactiveHashOperations;
-import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
