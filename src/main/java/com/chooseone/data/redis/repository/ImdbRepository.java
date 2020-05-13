@@ -20,10 +20,6 @@ public class ImdbRepository {
         return reactiveRedisTemplate.opsForHash();
     }
 
-    public Mono<Imdb> findByImdb(String username) {
-        return reactiveHashOperations().get(KEY, username);
-    }
-
     public void save(Imdb imdb) {
          reactiveHashOperations().put(KEY, imdb.getImdbID(), imdb).subscribe();
     }

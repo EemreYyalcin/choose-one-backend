@@ -13,8 +13,7 @@ import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -22,10 +21,12 @@ public class ImdbService {
 
     private final ImdbRepository imdbRepository;
 
+    private List<Imdb> items = new ArrayList<>();
+
 
     //Run Once
 //    @PostConstruct
-    public void setup(){
+    public void setup() {
 
         Set<String> titles = new HashSet<>();
         FileInputStream fis = null;
@@ -38,9 +39,9 @@ public class ImdbService {
             System.out.println("Reading File line by line using BufferedReader");
 
             String line = reader.readLine();
-            while(line != null){
-                if (line.contains("title/")){
-                    titles.add(line.substring(line.indexOf("title") + 6 , line.indexOf("?") - 1));
+            while (line != null) {
+                if (line.contains("title/")) {
+                    titles.add(line.substring(line.indexOf("title") + 6, line.indexOf("?") - 1));
                 }
                 line = reader.readLine();
             }
@@ -60,8 +61,8 @@ public class ImdbService {
 
     }
 
-//    @PostConstruct
-    public void setup2(){
+    //    @PostConstruct
+    public void setup2() {
         imdbRepository.getAllMovies().filter(e -> ObjectUtils.isEmpty(e.getPoster()))
                 .map(e -> {
                     Imdb imdb;
@@ -69,7 +70,7 @@ public class ImdbService {
                         ResponseEntity<Imdb> response = new RestTemplate().getForEntity("http://www.omdbapi.com/?apikey=[API_KEY]&i=" + e.getImdbID(), Imdb.class);
                         imdb = response.getBody();
                         return imdb;
-                    }catch (Exception ex){
+                    } catch (Exception ex) {
                         ex.printStackTrace();
                         return e;
                     }
@@ -81,14 +82,26 @@ public class ImdbService {
     }
 
 
+    @PostConstruct
+    public void loadItems() {
+        imdbRepository.getAllMovies()
+                .filter(e -> !ObjectUtils.isEmpty(e.getPoster()))
+                .map(e -> {
+                    items.add(e);
+                    return e;
+                }).subscribe();
+    }
 
-
-
-
-
-
-
-
+    public List<Imdb> getRandomItems(int size) {
+        Random random = new Random();
+        List<Imdb> result = new ArrayList<>();
+        int index;
+        for (int i = 0; i < size; ++i) {
+            index = random.nextInt(items.size() + 1);
+            result.add(items.get(index));
+        }
+        return result;
+    }
 
 
 }

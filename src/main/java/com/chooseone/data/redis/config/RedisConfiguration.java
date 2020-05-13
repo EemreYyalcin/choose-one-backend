@@ -1,9 +1,7 @@
 package com.chooseone.data.redis.config;
 
 
-import com.chooseone.data.redis.model.Imdb;
-import com.chooseone.data.redis.model.SortedSetId;
-import com.chooseone.data.redis.model.UserInfo;
+import com.chooseone.data.redis.model.*;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.context.annotation.Bean;
@@ -14,6 +12,8 @@ import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.RedisSerializationContext;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import java.util.List;
 
 import static org.springframework.data.redis.serializer.RedisSerializationContext.newSerializationContext;
 
@@ -59,6 +59,40 @@ public class RedisConfiguration {
         return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
     }
 
+
+    @Bean
+    public ReactiveRedisTemplate<String, Pairs> redisPairsOperations(ReactiveRedisConnectionFactory connectionFactory) {
+        RedisSerializationContext<String, Pairs> serializationContext
+                = RedisSerializationContext
+                .<String, Pairs>newSerializationContext(new StringRedisSerializer())
+                .hashKey(new StringRedisSerializer())
+                .hashValue(configureJackson2JsonRedisSerializer(Pairs.class))
+                .build();
+        return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
+    }
+
+
+    @Bean
+    public ReactiveRedisTemplate<String, Pair> redisPairOperations(ReactiveRedisConnectionFactory connectionFactory) {
+        RedisSerializationContext<String, Pair> serializationContext
+                = RedisSerializationContext
+                .<String, Pair>newSerializationContext(new StringRedisSerializer())
+                .hashKey(new StringRedisSerializer())
+                .hashValue(configureJackson2JsonRedisSerializer(Pair.class))
+                .build();
+        return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
+    }
+
+    @Bean
+    public ReactiveRedisTemplate<String, KeyList> redisKeyListOperations(ReactiveRedisConnectionFactory connectionFactory) {
+        RedisSerializationContext<String, KeyList> serializationContext
+                = RedisSerializationContext
+                .<String, KeyList>newSerializationContext(new StringRedisSerializer())
+                .hashKey(new StringRedisSerializer())
+                .hashValue(configureJackson2JsonRedisSerializer(KeyList.class))
+                .build();
+        return new ReactiveRedisTemplate<>(connectionFactory, serializationContext);
+    }
 
 
 }
