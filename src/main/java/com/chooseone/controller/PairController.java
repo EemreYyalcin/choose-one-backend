@@ -1,6 +1,9 @@
 package com.chooseone.controller;
 
+import com.chooseone.model.request.PairGetRequestModel;
+import com.chooseone.model.request.PairRequestModel;
 import com.chooseone.model.response.BaseResponse;
+import com.chooseone.model.response.PairResponseModel;
 import com.chooseone.model.response.PairsResponseModel;
 import com.chooseone.security.jwt.JWTUtil;
 import com.chooseone.service.PairService;
@@ -10,12 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.ObjectUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import javax.annotation.PostConstruct;
 
 @RestController
 @RequestMapping("/pairs")
@@ -40,11 +42,16 @@ public class PairController {
         return pairService.getPairs(JWTUtil.getPrinciple(authentication).getUsername());
     }
 
-    @GetMapping(value = "/get-pair/{pairsId}", produces="text/event-stream")
+    @PostMapping(value = "/send-pair", produces="text/event-stream")
     @PreAuthorize("hasRole('USER')")
-    public Flux<PairsResponseModel> getPair(@PathVariable("pairsId") String pairsId, Authentication authentication) {
+    public Mono<Boolean> getPair(@RequestBody PairRequestModel pairRequestModel, Authentication authentication) {
+        return pairService.sentEventPair(pairRequestModel, JWTUtil.getPrinciple(authentication).getUsername());
+    }
 
-        return pairService.getPairs(JWTUtil.getPrinciple(authentication).getUsername());
+    @PostMapping(value = "/get-pair", produces="text/event-stream")
+    @PreAuthorize("hasRole('USER')")
+    public Flux<PairResponseModel> getPair(@RequestBody PairGetRequestModel pairGetRequestModel, Authentication authentication) {
+        return pairService.getEventPair(JWTUtil.getPrinciple(authentication).getUsername(), pairGetRequestModel.getPairs());
     }
 
 

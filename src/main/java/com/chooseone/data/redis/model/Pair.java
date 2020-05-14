@@ -1,5 +1,6 @@
 package com.chooseone.data.redis.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -15,8 +16,13 @@ public class Pair {
 
     private String client1;
 
+    private Integer client1Click;
+
     private boolean resolved = false;
 
     private String parentPairs;
+
+    @JsonIgnore
+    private String id;
 
 }
