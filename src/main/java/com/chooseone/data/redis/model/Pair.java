@@ -25,4 +25,7 @@ public class Pair {
     @JsonIgnore
     private String id;
 
+    @JsonIgnore
+    private boolean result = false;
+
 }

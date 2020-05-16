@@ -8,6 +8,7 @@ import com.chooseone.model.response.PairsResponseModel;
 import com.chooseone.security.jwt.JWTUtil;
 import com.chooseone.service.PairService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,11 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import javax.annotation.PostConstruct;
-
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/pairs")
 @RequiredArgsConstructor
+@Slf4j
 public class PairController {
 
     private final PairService pairService;
@@ -36,22 +37,23 @@ public class PairController {
         return Mono.just(ResponseEntity.ok(BaseResponse.createSuccessResponse(pairsKey)));
     }
 
-    @GetMapping(value = "/get-pairs", produces="text/event-stream")
+    @GetMapping(value = "/get-pairs", produces = "text/event-stream")
     @PreAuthorize("hasRole('USER')")
     public Flux<PairsResponseModel> getPairs(Authentication authentication) {
         return pairService.getPairs(JWTUtil.getPrinciple(authentication).getUsername());
     }
 
-    @PostMapping(value = "/send-pair", produces="text/event-stream")
+    @PostMapping(value = "/send-pair", produces = "text/event-stream")
     @PreAuthorize("hasRole('USER')")
     public Mono<Boolean> getPair(@RequestBody PairRequestModel pairRequestModel, Authentication authentication) {
         return pairService.sentEventPair(pairRequestModel, JWTUtil.getPrinciple(authentication).getUsername());
     }
 
-    @PostMapping(value = "/get-pair", produces="text/event-stream")
+    @GetMapping(value = "/get-pair/{pairs}", produces = "text/event-stream")
     @PreAuthorize("hasRole('USER')")
-    public Flux<PairResponseModel> getPair(@RequestBody PairGetRequestModel pairGetRequestModel, Authentication authentication) {
-        return pairService.getEventPair(JWTUtil.getPrinciple(authentication).getUsername(), pairGetRequestModel.getPairs());
+    public Flux<PairResponseModel> getPair(@PathVariable("pairs") String pairs, Authentication authentication) {
+        log.info("getPair:" + pairs);
+        return pairService.getEventPair(JWTUtil.getPrinciple(authentication).getUsername(), pairs);
     }
 
 

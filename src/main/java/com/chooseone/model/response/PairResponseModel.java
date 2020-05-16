@@ -17,4 +17,6 @@ public class PairResponseModel {
 
     private String pairId;
 
+    private boolean result = false;
+
 }

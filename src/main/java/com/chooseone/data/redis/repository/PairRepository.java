@@ -27,7 +27,7 @@ public class PairRepository {
         return reactiveHashOperations().entries(KEY)
                 .map(e -> e.getValue().setId(e.getKey()))
                 .filter(e -> e.getParentPairs().equals(parentPair))
-                .filter(e -> !e.isResolved()).next();
+                .filter(e -> !e.isResolved()).next().switchIfEmpty(Mono.empty());
     }
 
     public Mono<Pair> updateAndGetNextPair(String pairId, String username, Integer click){

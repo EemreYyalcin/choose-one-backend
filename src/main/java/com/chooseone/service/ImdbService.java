@@ -97,7 +97,7 @@ public class ImdbService {
         List<Imdb> result = new ArrayList<>();
         int index;
         for (int i = 0; i < size; ++i) {
-            index = random.nextInt(items.size() + 1);
+            index = random.nextInt(items.size());
             result.add(items.get(index));
         }
         return result;
