@@ -11,8 +11,6 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-
 @Component
 @RequiredArgsConstructor
 public class SortedSetRepository {
@@ -27,8 +25,8 @@ public class SortedSetRepository {
         return this.reactiveRedisOperations.opsForZSet().range("order_" + KEY, Range.of(Range.Bound.inclusive(score + 1), Range.Bound.inclusive(score*10 ))).next();
     }
 
-    public Mono<SortedSetId> getNewestNext(String KEY){
-        return this.reactiveRedisOperations.opsForZSet().reverseRange("order_" + KEY, Range.of(Range.Bound.inclusive(Instant.now().toEpochMilli()), Range.Bound.inclusive(0L))).next();
+    public Mono<SortedSetId> getNewstNext(String KEY, Long score){
+        return this.reactiveRedisOperations.opsForZSet().range("order_" + KEY, Range.of(Range.Bound.inclusive(score + 1), Range.Bound.inclusive(score*10 ))).next();
     }
 
     public Flux<SortedSetId> getAll(String KEY){

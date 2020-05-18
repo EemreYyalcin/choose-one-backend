@@ -15,7 +15,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import javax.validation.Valid;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -37,11 +36,7 @@ public class TestController {
     @PreAuthorize("hasRole('USER')")
     public Flux<UserTestsResponseModel> getTests(Authentication authentication) {
         return testService.getAllUserTests(JWTUtil.getPrinciple(authentication).getUsername())
-                .flatMap(e -> Mono.just(e.getTests().stream().map(q -> new UserTestsResponseModel()
-                        .setTest(new TestsResponseModel()
-                                .setCategory(q.getTestDocument().getCategory())
-                                .setType(q.getTestDocument().getType()))).collect(Collectors.toList())))
-                .flatMapMany(Flux::fromIterable);
+                .map(e -> new UserTestsResponseModel().setTest(new TestsResponseModel().setType(e.getTestDocument().getType()).setCategory(e.getTestDocument().getCategory())));
     }
 
     @PostMapping(value = "/sent-questions", produces = "text/event-stream")
@@ -50,16 +45,11 @@ public class TestController {
         return testService.sentActiveTests(testsRequestModel, JWTUtil.getPrinciple(authentication).getUsername());
     }
 
-    @GetMapping(value = "/sent-answer", produces = "text/event-stream")
+    @GetMapping(value = "/get-questions", produces = "text/event-stream")
     @PreAuthorize("hasRole('USER')")
     public Flux<QuestionResponseModel> getQuestions(Authentication authentication) {
         return testService.getQuestions(JWTUtil.getPrinciple(authentication).getUsername());
     }
-
-
-
-
-
 
 
 }

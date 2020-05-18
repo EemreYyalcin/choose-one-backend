@@ -13,17 +13,19 @@ public class AnswersRepository {
 
     private final ReactiveRedisTemplate<String, AnswersDocument> reactiveRedisTemplate;
 
-    private final SortedSetRepository sortedSetRepository;
-
     private ReactiveHashOperations<String, String, AnswersDocument> reactiveHashOperations() {
         return reactiveRedisTemplate.opsForHash();
     }
 
-    public void findAndUpdate(String KEY, String username, Integer response) {
-        reactiveHashOperations().get(KEY, username)
-                .doOnNext(e -> reactiveHashOperations().put(KEY, username, e.setAnswers(e.getAnswers() + response)))
+
+    public void saveAnswer(String KEY, String questionId, Integer response, String username) {
+        reactiveHashOperations().get(KEY, questionId + "_" + response)
+                .doOnNext(e -> reactiveHashOperations().put(KEY, questionId + "_" + response, e.addUser(username)).subscribe())
                 .thenReturn(Boolean.TRUE)
-                .switchIfEmpty(Mono.defer(() -> reactiveHashOperations().put(KEY, username, new AnswersDocument().setAnswers("" + response)))).subscribe();
+                .switchIfEmpty(Mono.defer(() -> {
+                    reactiveHashOperations().put(KEY, questionId + "_" + response, new AnswersDocument().addUser(username)).subscribe();
+                    return Mono.just(Boolean.TRUE);
+                }));
 
     }
 

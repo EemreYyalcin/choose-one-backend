@@ -1,7 +1,6 @@
 package com.chooseone.data.redis.repository;
 
 import com.chooseone.data.redis.model.test.QuestionDocument;
-import com.chooseone.data.redis.model.test.TestDocument;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.ReactiveHashOperations;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
@@ -25,9 +24,9 @@ public class QuestionRepository {
                 .doOnNext(e -> sortedSetRepository.save(KEY, key, index)).subscribe();
     }
 
-    public Mono<QuestionDocument> findNextQuestion(String KEY, int index){
+    public Mono<QuestionDocument> findNextQuestion(String KEY, int index) {
         return sortedSetRepository.getNext(KEY, Long.valueOf(index))
-                .flatMap(e -> reactiveHashOperations().get(KEY, e.getId()));
+                .flatMap(e -> reactiveHashOperations().get(KEY, e.getId()).map(k -> k.setId(e.getId())));
     }
 
 

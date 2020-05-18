@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.LocalDateTime;
+
 @Component
 @RequiredArgsConstructor
 public class UserTestRepository {
@@ -20,11 +22,20 @@ public class UserTestRepository {
         return reactiveRedisTemplate.opsForHash();
     }
 
-    public void save(String key, UserTestDocument userTestDocument) {
-        reactiveHashOperations().put(KEY, key, userTestDocument).subscribe();
+    public Mono<UserTestDocument> updateAndGet(String key){
+        return reactiveHashOperations().get(KEY, key)
+                .map(e -> e.setIndex(e.getIndex() + 10).setLastUpdatedDate(LocalDateTime.now()))
+                .doOnNext(e -> reactiveHashOperations().put(KEY, key, e))
+                .flatMap(Mono::just)
+                .switchIfEmpty(Mono.defer(() -> {
+                    UserTestDocument userTestDocument =  new UserTestDocument().setLastUpdatedDate(LocalDateTime.now());
+                    reactiveHashOperations().put(KEY, key, userTestDocument).subscribe();
+                    return Mono.just(userTestDocument);
+                }));
+
     }
 
-    public Mono<UserTestDocument> findAllNewestTests(String username) {
-        return reactiveHashOperations().get(KEY, username);
+    public Mono<UserTestDocument> findAllNewestTests(String key) {
+        return reactiveHashOperations().get(KEY, key);
     }
 }
