@@ -103,5 +103,9 @@ public class ImdbService {
         return result;
     }
 
+    public List<Imdb> getAllItems(){
+        return items;
+    }
+
 
 }
